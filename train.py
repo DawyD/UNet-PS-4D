@@ -36,7 +36,7 @@ parser = argparse.ArgumentParser(description='Photometric Stereo network trainin
 parser.add_argument('--seed', '-s', type=int, default=0, help='Random seed')
 parser.add_argument('--epochs', '-e', type=int, default=10, help='Number of epochs')
 parser.add_argument('--size', '-w', type=int, default=48, help='Size of the observation map')
-parser.add_argument('--neighbours', '-n', type=int, default=3, help='Size of the spatial patch')
+parser.add_argument('--neighbours', '-n', type=int, default=5, help='Size of the spatial patch')
 parser.add_argument('--rotations', '-K', type=int, default=12, help='Number of rotations')
 parser.add_argument('--model', '-m', type=str, default="cnnps",
                     help='Architecture type [cnnps, cnnps4D, unet, unet4D, pxnet]')
@@ -59,6 +59,7 @@ parser.add_argument('--dataset', type=str, default="cycles", help="Training data
 parser.add_argument('--dataset_path', type=str, default="datasets/CyclesPS/", help="Path to the dataset")
 
 args = parser.parse_args()
+print(args)
 
 # Set random seeds
 np.random.seed(args.seed)
@@ -98,7 +99,7 @@ with mirrored_strategy.scope():
 
     elif args.model == "unet":
         args.neighbours = 1
-        model = unet((args.size, args.size, nr_channels), 1, args.nr_features, args.nr_blocks, 2, args.useBN)
+        model = unet((args.size, args.size, nr_channels), 1, args.nr_features, args.nr_blocks, 2, use_BN=args.use_BN)
 
         lr_schedule = ExponentialDecay(0.0005, decay_steps=(1000000/args.batch_size), decay_rate=0.985, staircase=True)
         if args.optimizer == "rmsprop":
@@ -115,7 +116,7 @@ with mirrored_strategy.scope():
 
     elif args.model == "unet4D":
         if args.neighbours == 3 or args.neighbours == 5 or args.neighbours == 7 or args.neighbours == 9:
-            model = unet_sep4d((args.neighbours, args.neighbours, args.size, args.size, nr_channels), 1, args.nr_features, args.nr_blocks, 2, args.useBN)
+            model = unet_sep4d((args.neighbours, args.neighbours, args.size, args.size, nr_channels), 1, args.nr_features, args.nr_blocks, 2, use_BN=args.use_BN)
         else:
             raise NotImplementedError("Only spatial patches of 3x3, 5x5, 7x7 and 9x9 are supported by this model")
 
@@ -152,6 +153,7 @@ dataset_args = {
     'spatial_patch_size': args.neighbours, 'obs_map_size': args.size, 'keep_axis': is4D, 'projection': projection,
     'add_raw': args.add_raw, 'divide_maps': args.dividemaps,
     'nr_rotations': args.rotations, 'order': args.order, 'rot_2D': False,
+    'verbose': True
 }
 
 if args.dataset == "cycles":
