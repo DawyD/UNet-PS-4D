@@ -117,7 +117,7 @@ def test_network(model, dir_path, objlist, loading_fn, nr_rotations, obs_map_siz
         np.divide(est, norm, out=est2, where=norm != 0)
 
         # Get the valid pixels
-        valid = (np.max(images[..., 0], axis=-1, keepdims=True) > 0) & masks
+        valid = (np.max(np.mean(images, axis=-1), axis=-1, keepdims=True) > 0) & masks
 
         # Compute the error between the averaged predictions and the GT normals
         err = np.abs(np.einsum('kij,kij->ki', est2, normals))[..., None]  # dot product

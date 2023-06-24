@@ -135,8 +135,8 @@ class DataGenerator(Sequence):
 
         """ </------ Allocating the data and handling the rotations ------> """
 
-        # Get maximal value for each valid pixel (zero for invalid pixels)
-        self.imax = np.amax(self.images[..., 0], axis=-1, keepdims=True)
+        # Get maximal luminance value (over illuminations) for each valid pixel (zero for invalid pixels)
+        self.imax = np.amax(np.mean(self.images, axis=-1), axis=-1, keepdims=True)
         self.imax *= self.masks
 
         # Pad the images so that the spatial patch (neighbourhood) centred at a valid pixel fits the array

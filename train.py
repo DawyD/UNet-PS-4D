@@ -101,7 +101,7 @@ with mirrored_strategy.scope():
         args.neighbours = 1
         model = unet((args.size, args.size, nr_channels), 1, args.nr_features, args.nr_blocks, 2, use_BN=args.use_BN)
 
-        lr_schedule = ExponentialDecay(0.0005, decay_steps=(1000000/args.batch_size), decay_rate=0.985, staircase=True)
+        lr_schedule = ExponentialDecay(0.001, decay_steps=(1000000/args.batch_size), decay_rate=0.985, staircase=True)
         if args.optimizer == "rmsprop":
             optimizer = RMSprop(learning_rate=lr_schedule)
         elif args.optimizer == "adam":
